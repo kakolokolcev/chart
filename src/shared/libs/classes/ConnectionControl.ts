@@ -1,4 +1,4 @@
-import { Point } from './Point';
+import { ConnectionPoint } from './ConnectionPoint';
 
 type IPoint = {
   x: number;
@@ -6,7 +6,7 @@ type IPoint = {
   t: number;
 };
 
-export class Control extends Point {
+export class ConnectionControl extends ConnectionPoint {
   index: number;
 
   isSelected: boolean;

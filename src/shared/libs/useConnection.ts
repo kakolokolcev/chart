@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 
 import { throttle } from '@/shared/helpers';
-import { Connection } from '@/shared/libs';
+
+import { Connection } from './classes/Connection';
 
 type IPoint = {
   x: number;

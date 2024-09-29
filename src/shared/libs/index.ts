@@ -1,1 +1,2 @@
-export { Connection } from './connection/Connection';
+export * as ChartStore from './useChart';
+export { useConnection } from './useConnection';

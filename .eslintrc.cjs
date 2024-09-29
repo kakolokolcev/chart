@@ -37,6 +37,7 @@ module.exports = {
   },
   plugins: ['import', '@typescript-eslint', 'vue'],
   rules: {
+    'vue/multi-word-component-names' : 0,
     'vue/component-name-in-template-casing': [
       'error',
       'PascalCase',

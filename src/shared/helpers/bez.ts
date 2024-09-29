@@ -15,5 +15,9 @@ export const useBize = () => {
     return (1 - t) ** 2 * y0 + 2 * (1 - t) * t * y1 + t ** 2 * y2;
   };
 
-  return { getX, getY, getCenterTX, getCenterTY };
+  const getCenterCubic = (x0: number, x1: number, x2: number, x3: number, t = 0.5) => {
+    return (1 - t) ** 3 * x0 + 3 * (1 - t) ** 2 * t * x1 + 3 * (1 - t) * t ** 2 * x2 + t ** 3 * x3;
+  };
+
+  return { getX, getY, getCenterTX, getCenterTY, getCenterCubic };
 };

@@ -1,23 +1,21 @@
 <template>
   <div class="editor-wrapper">
-    <svg
+    <!-- <svg
       height="100%"
       width="100%"
     >
-      <path
-        ref="pathRef"
-        fill="transparent"
-        stroke="#988ee3"
-        stroke-width="10px"
-        :d="`M 400 100 ${smoothedString}`"
-      />
-    </svg>
+      <Connection :points="createConnectionCoords({ x: 820, y: 200 }, { x: 1220, y: 200 })" />
+    </svg> -->
 
     <div
       @mouseup="onMouseUp"
       @mousemove="onMouseMove"
       class="layout"
     >
+      <div class="layout-chart">
+        <Node :node="{ text: '', point: { x: 700, y: 200 }}" />
+      </div>
+<!-- 
       <div
         v-for="circle in currentConnection.controls"
         :key="circle.index"
@@ -25,15 +23,25 @@
         @mousedown="onMouseDown(circle.index)"
         :style="{ top: `${circle.y}px`, left: `${circle.x}px` }"
       />
+
+      <div
+        class="create-node-btn"
+        @click="createNode"
+      /> -->
+
+      C 320.8337,0.0000 305.8894,-164.4119 311.6606,-164.4119
+        317.4319 -164.4119 343.9185 0.0000 452.0000 0.0000 
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useConnection } from '@/entities/connection';
+import { Node } from '@/entities/node';
 
+import { Connection, useConnectionCoords } from '@/shared/ui';
 import { useSmooth } from '@/shared/helpers';
 
 const toRightDefaultConnection = [
@@ -42,9 +50,23 @@ const toRightDefaultConnection = [
   { x: 900, y: 100, t: 1 },
 ];
 
+const defaultNode = {
+  text: 'Нажмите, чтобы изменить заголовок',
+  point: {
+    x: 0,
+    y: 0,
+  },
+};
+
 const { connections, create, throttleRecalculatePoints, selectControlPoint, deselectControlPoint } =
   useConnection();
 const { smooth } = useSmooth();
+const { createConnectionCoords } = useConnectionCoords();
+
+const chart = ref({
+  nodes: [],
+  connections,
+});
 
 create(toRightDefaultConnection);
 
@@ -64,6 +86,22 @@ const onMouseUp = () => {
 const onMouseDown = (index: number) => {
   selectControlPoint(index, currentConnection.id);
 };
+
+const createNode = () => {
+  const x = window.innerWidth / 2;
+  const y = window.innerHeight / 2;
+
+  // @ts-ignore
+  chart.value.nodes.push({
+    text: 'Нажмите, чтобы изменить заголовок',
+    point: {
+      x,
+      y,
+    },
+  });
+
+  console.log(chart);
+};
 </script>
 
 <style lang="scss">
@@ -72,6 +110,23 @@ const onMouseDown = (index: number) => {
   width: 100dvw;
   overflow: hidden;
   position: relative;
+
+  .create-node-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    height: 40px;
+    width: 40px;
+    border-radius: 100%;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:after {
+      content: '+';
+    }
+  }
 
   .layout {
     position: absolute;

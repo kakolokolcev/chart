@@ -22,6 +22,20 @@ const Vector = {
   },
 };
 
+export const smoothCommand1 = (i: number, a: IPoints[]) => {
+  const pStart = a[i - 1];
+  const pEnd = a[i];
+
+  const pPrev = a[i - 2] || pStart;
+  const pNext = a[i + 1] || pEnd;
+
+  // start control point
+  const [cpsX, cpsY] = Vector.add(pStart, Vector.scale(SMOOTH, Vector.sub(pEnd, pPrev)));
+  // end control point
+  const [cpeX, cpeY] = Vector.add(pEnd, Vector.scale(SMOOTH, Vector.sub(pStart, pNext)));
+
+  return [cpsX, cpsY, cpeX, cpeY, pEnd[0], pEnd[1]];
+};
 export const smoothCommand = (i: number, a: IPoints[]) => {
   const pStart = a[i - 1];
   const pEnd = a[i];
@@ -49,7 +63,19 @@ export const getSmoothBezierPoints = (points: IPoints[]) => {
   return d;
 };
 
-export const getSmoothedPoints = (a: IConnectionPoint[], i: number = 1) => {
+export const getSmoothBezierPoints1 = (points: IPoints[]) => {
+  const array = [];
+
+  points.forEach((_, index) => {
+    if (index) {
+      array.push(smoothCommand1(index, points));
+    }
+  });
+
+  return array;
+};
+
+export const getSmoothedPoint = (a: IConnectionPoint[], i: number = 1) => {
   const pStart = a[i - 1];
   const pEnd = a[i];
 
@@ -64,6 +90,8 @@ export const getSmoothedPoints = (a: IConnectionPoint[], i: number = 1) => {
 };
 
 export const useSmooth = () => {
+  // const smooth = (points: IConnectionPoint[]) => points.map((_, i) => getSmoothedPoint(points, i));
+
   const smooth = (points: IConnectionPoint[]) => {
     const formatPoints = points.map((point) => {
       const { x, y, t } = point;
@@ -74,5 +102,15 @@ export const useSmooth = () => {
     return getSmoothBezierPoints(formatPoints);
   };
 
-  return { smooth };
+  const smooth1 = (points: IConnectionPoint[]) => {
+    const formatPoints = points.map((point) => {
+      const { x, y, t } = point;
+
+      return [x, y, t];
+    });
+
+    return getSmoothBezierPoints1(formatPoints);
+  };
+
+  return { smooth, smooth1 };
 };

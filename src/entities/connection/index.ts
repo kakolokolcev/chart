@@ -1,1 +1,1 @@
-export { useConnection } from './composables/useConnection';
+export { ControlPoint } from './ui';

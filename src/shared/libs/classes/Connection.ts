@@ -1,5 +1,6 @@
 import { Point } from './Point';
-import { Control } from './Control';
+import { ConnectionPoint } from './ConnectionPoint';
+import { ConnectionControl } from './ConnectionControl';
 
 const DISTANCE_FOR_CREATE_CONTROL = 200;
 const DISTANCE_FOR_REMOVE_ANY_CONTROL = 50;
@@ -17,23 +18,48 @@ interface ISettings {
   wasRemovedNextControl: boolean;
 }
 
+interface IConnectionPoints {
+  tailPoints: {
+    x: number;
+    y: number;
+  };
+  points: {
+    x: number;
+    y: number;
+    t: number;
+  }[];
+  headPoints: {
+    x: number;
+    y: number;
+  };
+}
+
 export class Connection {
   id: number;
 
-  points = [] as Point[];
+  tailPoints: Point;
 
-  controls = [] as Control[];
+  headPoints: Point;
+
+  points = [] as ConnectionPoint[];
+
+  controls = [] as ConnectionControl[];
 
   settings = {} as ISettings;
 
-  constructor(points: IPoint[]) {
+  constructor(connectionPoints: IConnectionPoints) {
+    const { tailPoints, headPoints, points } = connectionPoints;
+
     this.id = 1;
 
+    this.tailPoints = new Point(tailPoints.x, tailPoints.y);
+    this.headPoints = new Point(headPoints.x, headPoints.y);
+
     points.forEach((point) => {
-      this.points.push(new Point(point));
+      this.points.push(new ConnectionPoint(point));
     });
 
-    this.controls.push(new Control(this.points[1], 1));
+    this.controls.push(new ConnectionControl(this.points[2], 2));
 
     this.settings = {
       wasCreatedPrevControl: false,
@@ -50,8 +76,6 @@ export class Connection {
       wasRemovedPrevControl: false,
       wasRemovedNextControl: false,
     };
-
-    console.log(this.settings);
   }
 
   recalculate(curIndex: number, deltaX: number, deltaY: number) {
@@ -107,13 +131,13 @@ export class Connection {
   }
 
   recalculateControls(
-    current: Control,
-    neighbour: Control | undefined,
-    neighbourPoint: Point,
-    afterOneNeighbour: Control | undefined,
-    afterOneNeighbourPoint: Point,
-    create: (a: Control, b: Point) => void,
-    remove: (a: Control) => void,
+    current: ConnectionControl,
+    neighbour: ConnectionControl | undefined,
+    neighbourPoint: ConnectionPoint,
+    afterOneNeighbour: ConnectionControl | undefined,
+    afterOneNeighbourPoint: ConnectionPoint,
+    create: (a: ConnectionControl, b: ConnectionPoint) => void,
+    remove: (a: ConnectionControl) => void,
     createSettingsName: 'wasCreatedNextControl' | 'wasCreatedPrevControl',
     removeSettingsName: 'wasRemovedNextControl' | 'wasRemovedPrevControl',
   ) {
@@ -155,7 +179,7 @@ export class Connection {
     }
   }
 
-  removePrevControl(prevControl: Control) {
+  removePrevControl(prevControl: ConnectionControl) {
     this.points.splice(prevControl.index, 1);
 
     const indexControl = this.controls.findIndex(({ index }) => index === prevControl.index);
@@ -168,9 +192,11 @@ export class Connection {
     });
   }
 
-  createPrevControl(control: Control, prevControl: Point) {
-    const newControl = new Control(control.getMiddleCoordinates(prevControl), control.index);
-    const newPoint = new Point(control.getMiddleCoordinates(prevControl));
+  createPrevControl(control: ConnectionControl, prevControl: ConnectionPoint) {
+    const newControl = new ConnectionControl(control.getMiddleCoordinates(prevControl), control.index);
+
+    // const newControl = new ConnectionControl(control.getMiddleCoordinatesW(prevControl), control.index);
+    const newPoint = new ConnectionPoint(control.getMiddleCoordinates(prevControl));
 
     this.points.splice(control.index, 0, newPoint);
 
@@ -185,7 +211,7 @@ export class Connection {
     control.setIndex(control.index + 1);
   }
 
-  removeNextControl(nextControl: Control) {
+  removeNextControl(nextControl: ConnectionControl) {
     this.points.splice(nextControl.index, 1);
 
     const indexControl = this.controls.findIndex(({ index }) => index === nextControl.index);
@@ -198,9 +224,9 @@ export class Connection {
     });
   }
 
-  createNextControl(control: Control, nextControl: Point) {
-    const newControl = new Control(control.getMiddleCoordinates(nextControl), control.index + 1);
-    const newPoint = new Point(control.getMiddleCoordinates(nextControl));
+  createNextControl(control: ConnectionControl, nextControl: ConnectionPoint) {
+    const newControl = new ConnectionControl(control.getMiddleCoordinates(nextControl), control.index + 1);
+    const newPoint = new ConnectionPoint(control.getMiddleCoordinates(nextControl));
 
     this.points.splice(control.index + 1, 0, newPoint);
 
